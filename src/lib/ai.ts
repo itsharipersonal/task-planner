@@ -163,6 +163,7 @@ export async function generateChallenge(
   config: CategoryConfig,
   difficulty: Difficulty,
   recentTitles: string[],
+  generationGuidance?: string | null,
 ): Promise<{ challenge: GeneratedChallenge; aiGenerated: boolean }> {
   if (config.generateLocal) {
     return { challenge: config.generateLocal(difficulty), aiGenerated: false };
@@ -182,7 +183,7 @@ export async function generateChallenge(
       "You generate challenges for an accountability app that forces users to complete real-world tasks under a timer and submit proof. Challenges must be specific, self-contained, achievable within the time limit, and safe. Never require spending money, dangerous activity, or interactions that could harass anyone.",
     prompt: `Generate one ${difficulty.toUpperCase()} difficulty challenge for the "${config.name}" category.
 
-Category guidance: ${config.generationGuidance}
+Category guidance: ${generationGuidance ?? config.generationGuidance}
 
 Time the user gets to complete it: ${Math.round(config.workSeconds[difficulty] / 60)} minutes${config.prepSeconds[difficulty] > 0 ? ` (plus ${Math.round(config.prepSeconds[difficulty] / 60)} minutes preparation)` : ""}.
 Submission type: ${config.submissionType}.${avoid}`,
@@ -286,6 +287,7 @@ export async function evaluateSubmission(
   config: CategoryConfig,
   attempt: Attempt,
   submission: SubmissionInput,
+  evaluationGuidance?: string | null,
 ): Promise<Evaluation> {
   if (getApiKey(env)) {
     const result = await structuredCall<{
@@ -304,7 +306,7 @@ CHALLENGE (${config.name}, ${attempt.difficulty} difficulty): ${attempt.title}
 ${attempt.description}
 Instructions given to the user: ${attempt.instructions}
 
-Evaluation guidance: ${config.evaluationGuidance}
+Evaluation guidance: ${evaluationGuidance ?? config.evaluationGuidance}
 
 Score exactly these dimensions: ${config.dimensions.join(", ")}.
 

@@ -1,4 +1,5 @@
 import { evaluateSubmission, generateChallenge, scoreQuiz } from "../ai";
+import { getPrompt } from "../admin/prompts";
 import {
   BADGES,
   computeCoins,
@@ -278,7 +279,14 @@ export async function createAttempt(
     .all<{ title: string }>();
   const recentTitles = (recent ?? []).map((r) => r.title);
 
-  let generated = await generateChallenge(env, config, difficulty, recentTitles);
+  const generationGuidance = await getPrompt(db, categoryId, "generation");
+  let generated = await generateChallenge(
+    env,
+    config,
+    difficulty,
+    recentTitles,
+    generationGuidance,
+  );
   let templateId: string | null = null;
 
   // If the AI was unavailable, prefer admin-authored templates over the
@@ -434,7 +442,14 @@ export async function submitAttempt(
       aiGenerated: false,
     };
   } else {
-    evaluation = await evaluateSubmission(env, config, attempt, submission);
+    const evaluationGuidance = await getPrompt(db, attempt.categoryId, "evaluation");
+    evaluation = await evaluateSubmission(
+      env,
+      config,
+      attempt,
+      submission,
+      evaluationGuidance,
+    );
   }
 
   const xpAwarded = computeXpAward(

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClientIp, logAdminAction } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/auth";
 import { getCategory } from "@/lib/challenges/registry";
 
@@ -54,6 +55,14 @@ export async function POST(request: Request) {
       admin.email,
     )
     .run();
+
+  await logAdminAction(admin.env.DB, {
+    adminId: admin.userId,
+    action: "create_template",
+    module: "templates",
+    resourceId: id,
+    ip: getClientIp(request),
+  });
 
   return NextResponse.json({ id }, { status: 201 });
 }

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import { ChallengeNav } from "@/components/challenges/nav";
-import { getEnv, isAdminEmail } from "@/lib/auth";
+import { isMaintenanceMode } from "@/lib/admin/audit";
+import { adminPanelRole, getEnv } from "@/lib/auth";
 
 export default async function AppLayout({
   children,
@@ -12,7 +13,12 @@ export default async function AppLayout({
   if (!session?.user?.id) redirect("/");
 
   const env = await getEnv();
-  const admin = isAdminEmail(env, session.user.email ?? null);
+  const role = session.user.role ?? "user";
+  const admin = adminPanelRole(role);
+
+  if (!admin && (await isMaintenanceMode(env))) {
+    redirect("/?maintenance=1");
+  }
 
   return (
     <div className="flex min-h-full flex-1 flex-col">

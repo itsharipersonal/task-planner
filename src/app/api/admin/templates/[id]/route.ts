@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClientIp, logAdminAction } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/auth";
 
 export async function PATCH(
@@ -43,11 +44,20 @@ export async function PATCH(
   )
     .bind(...binds, id)
     .run();
+
+  await logAdminAction(admin.env.DB, {
+    adminId: admin.userId,
+    action: "update_template",
+    module: "templates",
+    resourceId: id,
+    ip: getClientIp(request),
+  });
+
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
   const admin = await requireAdmin();
@@ -57,5 +67,14 @@ export async function DELETE(
   await admin.env.DB.prepare("DELETE FROM challenge_templates WHERE id = ?")
     .bind(id)
     .run();
+
+  await logAdminAction(admin.env.DB, {
+    adminId: admin.userId,
+    action: "delete_template",
+    module: "templates",
+    resourceId: id,
+    ip: getClientIp(request),
+  });
+
   return NextResponse.json({ ok: true });
 }

@@ -2,15 +2,15 @@ import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import { CategoryCard } from "@/components/challenges/category-card";
 import { getEnv } from "@/lib/auth";
-import { dailyCategoryId, getCategory } from "@/lib/challenges/registry";
-import { getEnabledCategoryIds } from "@/lib/challenges/service";
+import { listEnabledMergedCategories } from "@/lib/challenges/categories";
+import { dailyCategoryId } from "@/lib/challenges/registry";
 
 export default async function ChallengesPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/");
 
   const env = await getEnv();
-  const enabled = await getEnabledCategoryIds(env.DB);
+  const categories = await listEnabledMergedCategories(env.DB);
   const daily = dailyCategoryId(new Date());
 
   return (
@@ -25,27 +25,23 @@ export default async function ChallengesPage() {
       </section>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {enabled.map((id) => {
-          const config = getCategory(id);
-          if (!config) return null;
-          return (
-            <CategoryCard
-              key={id}
-              id={config.id}
-              name={config.name}
-              tagline={config.tagline}
-              glyph={config.glyph}
-              submissionType={config.submissionType}
-              workMinutes={{
-                easy: Math.round(config.workSeconds.easy / 60),
-                medium: Math.round(config.workSeconds.medium / 60),
-                hard: Math.round(config.workSeconds.hard / 60),
-              }}
-              xpReward={config.xpReward}
-              isDaily={id === daily}
-            />
-          );
-        })}
+        {categories.map((config) => (
+          <CategoryCard
+            key={config.id}
+            id={config.id}
+            name={config.name}
+            tagline={config.description ?? config.tagline}
+            glyph={config.glyph}
+            submissionType={config.submissionType}
+            workMinutes={{
+              easy: Math.round(config.workSeconds.easy / 60),
+              medium: Math.round(config.workSeconds.medium / 60),
+              hard: Math.round(config.workSeconds.hard / 60),
+            }}
+            xpReward={config.xpReward}
+            isDaily={config.id === daily}
+          />
+        ))}
       </div>
     </div>
   );
