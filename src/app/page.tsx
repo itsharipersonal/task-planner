@@ -1,74 +1,48 @@
-import { auth, signIn, signOut } from "@/app/auth";
-import { TaskBoard } from "@/components/task-board";
+import { redirect } from "next/navigation";
+import { auth, signIn } from "@/app/auth";
 
 export default async function Home() {
   const session = await auth();
-
-  if (!session) {
-    return (
-      <div className="grid min-h-full flex-1 place-items-center px-6 py-10">
-        <main className="w-full max-w-md border-2 border-foreground bg-panel">
-          <header className="flex items-center justify-between gap-4 border-b-2 border-foreground px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.2em]">
-            <span className="text-foreground">{"< AUTH GATEWAY />"}</span>
-            <span className="text-dim">UNIT / D-01</span>
-          </header>
-          <div className="flex items-center justify-between border-b-2 border-foreground bg-hazard px-4 py-2 font-mono text-[0.7rem] font-bold uppercase tracking-[0.25em] text-black">
-            <span>{"// ACCESS REQUIRED"}</span>
-            <span className="terminal-blink">▮</span>
-          </div>
-          <div className="px-6 py-10">
-            <h1 className="font-sans text-5xl uppercase leading-[0.85] tracking-[-0.03em]">
-              Task
-              <br />
-              Planner
-            </h1>
-            <p className="mt-5 font-mono text-xs uppercase tracking-[0.15em] text-dim">
-              &gt; Authenticate via Google to access your private task register.
-            </p>
-
-            <form
-              className="mt-10"
-              action={async () => {
-                "use server";
-                await signIn("google");
-              }}
-            >
-              <button
-                type="submit"
-                className="flex h-14 w-full items-center justify-center gap-3 border-2 border-foreground bg-background px-4 font-sans text-lg uppercase tracking-wide text-foreground transition-colors hover:border-hazard hover:bg-hazard hover:text-black"
-              >
-                <GoogleIcon />
-                Sign in with Google
-              </button>
-            </form>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (session?.user?.id) redirect("/dashboard");
 
   return (
-    <div className="min-h-full bg-background">
-      <div className="mx-auto flex max-w-4xl justify-end px-6 pt-6">
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
-        >
-          <button
-            type="submit"
-            className="border-2 border-foreground bg-hazard px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-black transition-colors hover:bg-foreground hover:text-background"
+    <div className="grid min-h-full flex-1 place-items-center px-6 py-10">
+      <main className="w-full max-w-md border-2 border-foreground bg-panel">
+        <header className="flex items-center justify-between gap-4 border-b-2 border-foreground px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.2em]">
+          <span className="text-foreground">{"< AUTH GATEWAY />"}</span>
+          <span className="text-dim">UNIT / D-01</span>
+        </header>
+        <div className="flex items-center justify-between border-b-2 border-foreground bg-hazard px-4 py-2 font-mono text-[0.7rem] font-bold uppercase tracking-[0.25em] text-black">
+          <span>{"// ACCESS REQUIRED"}</span>
+          <span className="terminal-blink">▮</span>
+        </div>
+        <div className="px-6 py-10">
+          <h1 className="font-sans text-5xl uppercase leading-[0.85] tracking-[-0.03em]">
+            Forge
+            <br />
+            OS
+          </h1>
+          <p className="mt-5 font-mono text-xs uppercase tracking-[0.15em] text-dim">
+            &gt; AI Accountability Engine. Authenticate to enter.
+          </p>
+
+          <form
+            className="mt-10"
+            action={async () => {
+              "use server";
+              await signIn("google");
+            }}
           >
-            [ Terminate session ]
-          </button>
-        </form>
-      </div>
-      <TaskBoard
-        userName={session.user?.name}
-        userEmail={session.user?.email}
-        userImage={session.user?.image}
-      />
+            <button
+              type="submit"
+              className="flex h-14 w-full items-center justify-center gap-3 border-2 border-foreground bg-background px-4 font-sans text-lg uppercase tracking-wide text-foreground transition-colors hover:border-hazard hover:bg-hazard hover:text-black"
+            >
+              <GoogleIcon />
+              Sign in with Google
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

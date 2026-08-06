@@ -1,30 +1,42 @@
 import type { Metadata } from "next";
-import { Archivo_Black, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Libre_Baskerville, Syne } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
-const archivoBlack = Archivo_Black({
-  variable: "--font-brutal-sans",
-  weight: "400",
+const syne = Syne({
   subsets: ["latin"],
+  variable: "--font-syne",
+});
+
+const libreBaskerville = Libre_Baskerville({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-libre",
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-brutal-mono",
   subsets: ["latin"],
+  variable: "--font-jetbrains",
 });
 
 export const metadata: Metadata = {
-  title: "Task Planner // Tactical Telemetry",
-  description: "Plan and track tasks on Cloudflare Workers",
+  title: "Challenge App",
+  description: "Timed challenges with AI scoring",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${archivoBlack.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={cn(
+        "h-full antialiased",
+        syne.variable,
+        libreBaskerville.variable,
+        jetbrainsMono.variable,
+        "font-sans",
+      )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -2,3 +2,10 @@ AUTH_SECRET=replace-with-openssl-rand-base64-32
 AUTH_GOOGLE_ID=your-google-client-id.apps.googleusercontent.com
 AUTH_GOOGLE_SECRET=your-google-client-secret
 AUTH_URL=http://localhost:8787
+# OpenRouter — enables dynamic AI challenges + detailed scoring
+# Get a key at https://openrouter.ai/keys
+OPENROUTER_API_KEY=
+# Optional model override (default: anthropic/claude-sonnet-4)
+# OPENROUTER_MODEL=openai/gpt-4o-mini
+# Comma-separated list of emails with access to /admin
+ADMIN_EMAILS=
